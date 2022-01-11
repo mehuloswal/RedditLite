@@ -1,15 +1,7 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-contract redditlite {
-    struct post {
-        address postOwner;
-        bytes32 parentPost;
-        bytes32 contentId;
-        int40 votes;
-        bytes32 categoryId;
-    }
-    event ContentAdded(bytes32 indexed contentId, string contentUri);
-    event CategoryCreated(bytes32 indexed _categoryId, string category);
+contract Redditlite {
     event PostCreated(
         bytes32 indexed postId,
         address indexed postOwner,
@@ -17,6 +9,8 @@ contract redditlite {
         bytes32 contentId,
         bytes32 categoryId
     );
+    event ContentAdded(bytes32 indexed contentId, string contentUri);
+    event CategoryCreated(bytes32 indexed categoryId, string category);
     event Voted(
         bytes32 indexed postId,
         address indexed postOwner,
@@ -28,11 +22,19 @@ contract redditlite {
         uint8 reputationAmount
     );
 
-    mapping(address => mapping(bytes32 => uint80)) reputationRegistry; //bytes32 -> category
-    mapping(address => mapping(bytes32 => bool)) voteRegistry; //bytes32 -> post
+    struct post {
+        address postOwner;
+        bytes32 parentPost;
+        bytes32 contentId;
+        int40 votes;
+        bytes32 categoryId;
+    }
+
+    mapping(address => mapping(bytes32 => uint80)) reputationRegistry;
     mapping(bytes32 => string) categoryRegistry;
-    mapping(bytes32 => string) contentRegistry; //string=> url content of the post in IPFS
+    mapping(bytes32 => string) contentRegistry;
     mapping(bytes32 => post) postRegistry;
+    mapping(address => mapping(bytes32 => bool)) voteRegistry;
 
     function createPost(
         bytes32 _parentId,
@@ -59,18 +61,17 @@ contract redditlite {
         address _contributor = postRegistry[_postId].postOwner;
         require(
             postRegistry[_postId].postOwner != _voter,
-            "You cannot vote your own posts."
+            "You cannot vote your own posts!"
         );
         require(
             voteRegistry[_voter][_postId] == false,
-            "Sender already voted in this post."
+            "Sender already voted in this post!"
         );
         require(
             validateReputationChange(_voter, _category, _reputationAdded) ==
                 true,
-            "This address cannot add this amount of reputation points"
+            "This address cannot add this amount of reputation points!"
         );
-
         postRegistry[_postId].votes += 1;
         reputationRegistry[_contributor][_category] += _reputationAdded;
         voteRegistry[_voter][_postId] = true;
@@ -90,17 +91,15 @@ contract redditlite {
         address _voter = msg.sender;
         bytes32 _category = postRegistry[_postId].categoryId;
         address _contributor = postRegistry[_postId].postOwner;
-
         require(
             voteRegistry[_voter][_postId] == false,
-            "Sender already voted in this post."
+            "Sender already voted in this post!"
         );
         require(
             validateReputationChange(_voter, _category, _reputationTaken) ==
                 true,
-            "This address cannot take this amount of reputation points"
+            "This address cannot take this amount of reputation points!"
         );
-
         postRegistry[_postId].votes >= 1
             ? postRegistry[_postId].votes -= 1
             : postRegistry[_postId].votes = 0;
@@ -141,14 +140,6 @@ contract redditlite {
         emit CategoryCreated(_categoryId, _category);
     }
 
-    function getCategory(bytes32 _categoryId)
-        public
-        view
-        returns (string memory)
-    {
-        return categoryRegistry[_categoryId];
-    }
-
     function getContent(bytes32 _contentId)
         public
         view
@@ -157,12 +148,20 @@ contract redditlite {
         return contentRegistry[_contentId];
     }
 
-    function getReputation(address _address, bytes32 _categoryId)
+    function getCategory(bytes32 _categoryId)
+        public
+        view
+        returns (string memory)
+    {
+        return categoryRegistry[_categoryId];
+    }
+
+    function getReputation(address _address, bytes32 _categoryID)
         public
         view
         returns (uint80)
     {
-        return reputationRegistry[_address][_categoryId];
+        return reputationRegistry[_address][_categoryID];
     }
 
     function getPost(bytes32 _postId)
@@ -172,7 +171,7 @@ contract redditlite {
             address,
             bytes32,
             bytes32,
-            int40,
+            int72,
             bytes32
         )
     {

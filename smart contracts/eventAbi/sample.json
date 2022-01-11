@@ -5,7 +5,7 @@
 			{
 				"indexed": true,
 				"internalType": "bytes32",
-				"name": "_categoryId",
+				"name": "categoryId",
 				"type": "bytes32"
 			},
 			{
@@ -229,9 +229,9 @@
 				"type": "bytes32"
 			},
 			{
-				"internalType": "int40",
+				"internalType": "int72",
 				"name": "",
-				"type": "int40"
+				"type": "int72"
 			},
 			{
 				"internalType": "bytes32",
@@ -251,7 +251,7 @@
 			},
 			{
 				"internalType": "bytes32",
-				"name": "_categoryId",
+				"name": "_categoryID",
 				"type": "bytes32"
 			}
 		],
