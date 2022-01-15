@@ -5,8 +5,41 @@ import { useState } from "react";
 import { message } from "antd";
 
 const AddPost = () => {
+  const { contractABI, contractAddress, selectedCategory } = useMoralisDapp();
+  const contractABIJson = JSON.parse(contractABI);
+  const ipfsprocessor = useMoralisFile();
+  const contractProcessor = useWeb3ExecuteFunction();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+
+  const addPost = async (post) => {
+    const contentUri = await processContent(post);
+    const categoryId = selectedCategory["categoryId"];
+    const options = {
+      contractAddress: contractAddress,
+      functionName: "createPost",
+      abi: contractABIJson,
+      params: {
+        _parentId: "0x91",
+        _contentUri: contentUri,
+        _categoryId: categoryId
+      },
+    };
+    await contractProcessor.fetch({
+      params: options,
+      onSuccess: () => message.success("Success"),
+      onError: (error) => message.error(error),
+    });
+  };
+
+  const processContent = async (content) => {
+    const ipfsResult = await ipfsprocessor.saveFile(
+      "post.json",
+      { base64: btoa(JSON.stringify(content)) },
+      { saveIPFS: true }
+    );
+    return ipfsResult._ipfs;
+  };
 
   const validateForm = () => {
     let result = !title || !content ? false : true;
@@ -22,7 +55,8 @@ const AddPost = () => {
     e.preventDefault();
     if (!validateForm())
       return message.error("Remember to add the title and content of the post");
-    message.success("Post Added to the RedditLite Chain");
+    addPost({ title, content });
+    message.success("Post will be added to the RedditLite Chain");
     clearForm();
   }
   return (

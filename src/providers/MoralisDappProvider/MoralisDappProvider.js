@@ -49,6 +49,7 @@ function MoralisDappProvider({ children }) {
         setSelectedCategory,
         contractAddress,
         setContractAddress,
+        contractABI,
       }}
     >
       {children}
