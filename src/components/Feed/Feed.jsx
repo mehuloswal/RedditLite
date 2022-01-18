@@ -4,6 +4,7 @@ import Blockie from "components/Blockie";
 import glStyles from "components/gstyles";
 import { useMoralisDapp } from "providers/MoralisDappProvider/MoralisDappProvider";
 import AddPost from "./components/AddPost";
+import Posts from "./components/Posts";
 
 const Feed = () => {
   const { selectedCategory } = useMoralisDapp();
@@ -42,7 +43,8 @@ const Feed = () => {
           </Button>
         </div>
         {showAddPost ? <AddPost /> : ""}
-        <h3>Posts will go here</h3>
+
+        <Posts />
       </div>
     );
   }
