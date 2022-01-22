@@ -19,7 +19,7 @@ Checkout the project ➡️ [RedditLite.com](https://redditlite-moralis.netlify.
 
 ### Visual demo 📱
 
-1. Get your wallet authenticated and signed.
+1. `Get your wallet authenticated and signed.`
    ![](/public/1.png)
    ⬇️
 
@@ -27,10 +27,11 @@ Checkout the project ➡️ [RedditLite.com](https://redditlite-moralis.netlify.
    ⬇️
    ![](/public/3.png)
 
-2. Choose your category.
+2. `Choose your category.`
    ![](/public/4.png)
    ![](/public/5.png)
-3. Adding New Post
+3. `Adding New Post.`
+
    ![](/public/6.png)
    ![](/public/7.png)
 
