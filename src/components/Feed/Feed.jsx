@@ -5,6 +5,7 @@ import glStyles from "components/gstyles";
 import { useMoralisDapp } from "providers/MoralisDappProvider/MoralisDappProvider";
 import AddPost from "./components/AddPost";
 import Posts from "./components/Posts";
+import Reputation from "components/Reputation";
 
 const Feed = () => {
   const { selectedCategory } = useMoralisDapp();
@@ -36,7 +37,7 @@ const Feed = () => {
         >
           <Avatar src={<Blockie currentWallet />} />
           <h4>
-            Your Reputation in {selectedCategory["category"]} is {""}{" "}
+            Your Reputation in {selectedCategory["category"]} is <Reputation />
           </h4>
           <Button shape="round" onClick={toggleShowAddPost}>
             Post

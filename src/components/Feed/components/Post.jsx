@@ -15,7 +15,6 @@ import Votes from "./Votes";
 
 const Post = ({ post }) => {
   const { contentId, postId, postOwner } = post;
-  const { walletAddress } = useMoralisDapp();
   const [postContent, setPostContent] = useState({
     title: "Loading...",
     content: "Your content will be fetched right away....",
@@ -30,6 +29,10 @@ const Post = ({ post }) => {
     [],
     { live: true }
   );
+
+  const { walletAddress, contractABI, contractAddress } = useMoralisDapp();
+  const contractABIJson = JSON.parse(contractABI);
+  const contractProcessor = useWeb3ExecuteFunction();
 
   useEffect(() => {
     function extractUri(data) {
@@ -53,10 +56,34 @@ const Post = ({ post }) => {
 
   useEffect(() => {
     if (!votes?.length) return null;
-  });
+    async function getPostVoteStatus() {
+      const fetchedVotes = JSON.parse(JSON.stringify(votes));
+      fetchedVotes.forEach(({ voter, up }) => {
+        if (voter === walletAddress) setVoteStatus(up ? "liked" : "disliked");
+      });
+      return;
+    }
+    getPostVoteStatus();
+  }, [votes, walletAddress]);
 
-  function vote(input) {
-    message.success(input);
+  async function vote(direction) {
+    if (walletAddress.toLowerCase() === postOwner.toLowerCase())
+      return message.error("You cannot vote on your own posts");
+    if (voteStatus) return message.error("Already voted !");
+    const options = {
+      contractAddress: contractAddress,
+      functionName: direction,
+      abi: contractABIJson,
+      params: {
+        _postId: post["postId"],
+        [direction === "voteDown" ? "_reputationTaken" : "_reputationAdded"]: 1,
+      },
+    };
+    await contractProcessor.fetch({
+      params: options,
+      onSuccess: () => console.log("Success"),
+      onError: (error) => console.log(error),
+    });
   }
   const actions = [
     <Tooltip key="comment-basic-like" title="Vote Up">
@@ -67,12 +94,14 @@ const Post = ({ post }) => {
           alignItems: "center",
           marginRight: "16px",
         }}
+        onClick={() => vote("voteUp")}
       >
-        {createElement(voteStatus === "liked" ? LikeFilled : LikeOutlined)}
+        {createElement(voteStatus === "liked" ? LikeFilled : LikeOutlined)} Vote
+        Up
       </span>
     </Tooltip>,
     <span style={{ fontSize: "15px" }}>
-      {/* <Votes postId={postId} /> */} 0
+      <Votes postId={postId} />
     </span>,
     <Tooltip key="comment-basic-dislike" title="Dislike">
       <span
@@ -87,7 +116,7 @@ const Post = ({ post }) => {
         {createElement(
           voteStatus === "disliked" ? DislikeFilled : DislikeOutlined
         )}{" "}
-        {/* Vote Down */}
+        Vote Down
       </span>
     </Tooltip>,
   ];
